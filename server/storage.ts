@@ -1,38 +1,56 @@
-import { type User, type InsertUser } from "@shared/schema";
-import { randomUUID } from "crypto";
-
-// modify the interface with any CRUD methods
-// you might need
+import { vehicleProfiles, type VehicleProfile, type ActivateVehicle } from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  getVehicle(qrId: string): Promise<VehicleProfile | undefined>;
+  getAllVehicles(): Promise<VehicleProfile[]>;
+  createVehicle(qrId: string): Promise<VehicleProfile>;
+  activateVehicle(qrId: string, data: ActivateVehicle): Promise<VehicleProfile>;
+  updateVehicle(qrId: string, data: Partial<ActivateVehicle>): Promise<VehicleProfile>;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<string, User>;
-
-  constructor() {
-    this.users = new Map();
+export class DatabaseStorage implements IStorage {
+  async getVehicle(qrId: string): Promise<VehicleProfile | undefined> {
+    const [vehicle] = await db
+      .select()
+      .from(vehicleProfiles)
+      .where(eq(vehicleProfiles.qrId, qrId));
+    return vehicle;
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  async getAllVehicles(): Promise<VehicleProfile[]> {
+    return db.select().from(vehicleProfiles);
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+  async createVehicle(qrId: string): Promise<VehicleProfile> {
+    const [vehicle] = await db
+      .insert(vehicleProfiles)
+      .values({ qrId, isActive: false })
+      .returning();
+    return vehicle;
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
-    const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+  async activateVehicle(qrId: string, data: ActivateVehicle): Promise<VehicleProfile> {
+    const [vehicle] = await db
+      .update(vehicleProfiles)
+      .set({
+        ...data,
+        isActive: true,
+      })
+      .where(eq(vehicleProfiles.qrId, qrId))
+      .returning();
+    return vehicle;
+  }
+
+  async updateVehicle(qrId: string, data: Partial<ActivateVehicle>): Promise<VehicleProfile> {
+    const [vehicle] = await db
+      .update(vehicleProfiles)
+      .set(data)
+      .where(eq(vehicleProfiles.qrId, qrId))
+      .returning();
+    return vehicle;
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
