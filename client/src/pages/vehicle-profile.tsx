@@ -1,4 +1,4 @@
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -65,6 +65,7 @@ function NotRegistered() {
 
 function ActivationForm({ qrId }: { qrId: string }) {
   const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const form = useForm<ActivateVehicle>({
     resolver: zodResolver(activateVehicleSchema),
@@ -84,10 +85,7 @@ function ActivationForm({ qrId }: { qrId: string }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/vehicle", qrId] });
-      toast({
-        title: "Profile Activated",
-        description: "Your vehicle profile is now active and ready for use.",
-      });
+      setLocation(`/v/${qrId}/thank-you`);
     },
     onError: (error: Error) => {
       toast({

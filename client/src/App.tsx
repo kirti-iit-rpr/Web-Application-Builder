@@ -7,11 +7,13 @@ import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home";
 import VehicleProfilePage from "@/pages/vehicle-profile";
 import AdminPage from "@/pages/admin";
+import ThankYouPage from "@/pages/thank-you";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={HomePage} />
+      <Route path="/v/:qrId/thank-you" component={ThankYouPage} />
       <Route path="/v/:qrId" component={VehicleProfilePage} />
       <Route path="/admin" component={AdminPage} />
       <Route component={NotFound} />
