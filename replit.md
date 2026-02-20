@@ -12,6 +12,7 @@ A mobile-first web application for vehicle QR identity and contact system. Vehic
 ## Key Routes
 - `/` - Landing page with how-it-works info
 - `/v/:qrId` - Dynamic vehicle profile page (3 states: unregistered, inactive activation form, active profile)
+- `/v/:qrId/thank-you` - Thank You page shown after first-time activation
 - `/admin` - Admin panel for managing QR codes
 
 ## API Endpoints
@@ -28,4 +29,5 @@ A mobile-first web application for vehicle QR identity and contact system. Vehic
 - TEST001, TEST002, TEST003 are auto-seeded on startup
 
 ## Recent Changes
+- 2026-02-20: Added Thank You screen after first-time activation, redirects owner to /v/:qrId/thank-you
 - 2026-02-16: Initial MVP build with full CRUD, mobile-first UI, seed data
