@@ -4,16 +4,10 @@ import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 import { type VehicleProfile } from "@shared/schema";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import "@/styles/reho.css";
 import {
-  Phone,
-  MessageCircle,
-  AlertTriangle,
   ShieldAlert,
-  ShieldCheck,
   Loader2,
 } from "lucide-react";
 
@@ -22,40 +16,34 @@ const BAG_COLORS = ["Blue", "Black", "White", "Pink", "Red", "Green", "Grey"];
 
 function LoadingState() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardContent className="pt-6 space-y-4">
-          <div className="flex items-center justify-center">
-            <Skeleton className="h-16 w-16 rounded-full" />
-          </div>
-          <Skeleton className="h-6 w-3/4 mx-auto" />
-          <Skeleton className="h-4 w-1/2 mx-auto" />
-          <div className="space-y-3 pt-4">
+    <div className="reho-screen" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: "100%", maxWidth: 420, padding: "0 22px" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
+          <Skeleton className="h-16 w-16 rounded-full" />
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="h-4 w-1/2" />
+          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 12, paddingTop: 16 }}>
             <Skeleton className="h-12 w-full" />
             <Skeleton className="h-12 w-full" />
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
 
 function NotRegistered() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md text-center">
-        <CardContent className="pt-8 pb-8 space-y-4">
-          <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
-            <ShieldAlert className="h-8 w-8 text-destructive" />
-          </div>
-          <h1 className="text-xl font-semibold text-foreground" data-testid="text-not-registered">
-            QR Code Not Registered
-          </h1>
-          <p className="text-muted-foreground text-sm max-w-xs mx-auto">
-            This QR code is not registered in our system. Please contact your provider for a valid QR code.
-          </p>
-        </CardContent>
-      </Card>
+    <div className="reho-screen" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+      <div style={{ width: "100%", maxWidth: 420, padding: "0 22px", textAlign: "center" }}>
+        <div className="reho-blocked-icon" style={{ margin: "0 auto 20px", background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.35)" }}>
+          <ShieldAlert className="h-8 w-8" style={{ color: "#ef4444" }} />
+        </div>
+        <div className="reho-blocked-title" data-testid="text-not-registered">QR Code Not Registered</div>
+        <div className="reho-blocked-sub" style={{ margin: "0 auto" }}>
+          This QR code is not registered in our system. Please contact your provider for a valid QR code.
+        </div>
+      </div>
     </div>
   );
 }
@@ -294,78 +282,296 @@ function ActivationForm({ qrId }: { qrId: string }) {
   );
 }
 
+const COLOR_DOT_MAP: Record<string, { bg: string; border?: string }> = {
+  Blue: { bg: "#3b5bdb" },
+  Black: { bg: "#212529", border: "1px solid #555" },
+  White: { bg: "#f8f9fa", border: "1px solid #aaa" },
+  Pink: { bg: "#f06595" },
+  Red: { bg: "#e03131" },
+  Green: { bg: "#2f9e44" },
+  Grey: { bg: "#868e96" },
+};
+
+const MAX_ATTEMPTS = 3;
+
+function getStorageKey(qrId: string) {
+  return `reho_verify_${qrId}`;
+}
+
+function getVerificationState(qrId: string): { verified: boolean; attempts: number } {
+  try {
+    const raw = localStorage.getItem(getStorageKey(qrId));
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return { verified: false, attempts: 0 };
+}
+
+function setVerificationState(qrId: string, state: { verified: boolean; attempts: number }) {
+  localStorage.setItem(getStorageKey(qrId), JSON.stringify(state));
+}
+
 function ActiveProfile({ profile }: { profile: VehicleProfile }) {
   const whatsappNumber = profile.whatsappPhone?.replace(/[^0-9]/g, "");
+  const needsVerification = profile.verificationEnabled && profile.bagColor;
+
+  const stored = getVerificationState(profile.qrId);
+  const [verified, setVerified] = useState(stored.verified);
+  const [attempts, setAttempts] = useState(stored.attempts);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+  const [showError, setShowError] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+
+  const blocked = attempts >= MAX_ATTEMPTS;
+  const attemptsRemaining = MAX_ATTEMPTS - attempts;
+
+  const handleVerify = async () => {
+    if (!selectedColor || verifying) return;
+    setVerifying(true);
+    try {
+      const res = await apiRequest("POST", `/api/verify/${profile.qrId}`, { answer: selectedColor });
+      const data = await res.json();
+      if (data.verified) {
+        setVerified(true);
+        setVerificationState(profile.qrId, { verified: true, attempts });
+        setShowError(false);
+      } else {
+        const newAttempts = attempts + 1;
+        setAttempts(newAttempts);
+        setVerificationState(profile.qrId, { verified: false, attempts: newAttempts });
+        setShowError(true);
+        setSelectedColor(null);
+      }
+    } catch {
+      setShowError(true);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  if (needsVerification && blocked && !verified) {
+    return (
+      <div className="reho-screen">
+        <div className="reho-blocked-page">
+          <div className="reho-brand" style={{ marginBottom: 32 }}>
+            <span className="reho-brand-re">Re</span>
+            <span className="reho-brand-ho">ho</span>
+          </div>
+          <div className="reho-blocked-icon" data-testid="icon-blocked">🚫</div>
+          <div className="reho-blocked-title" data-testid="text-blocked-title">Access blocked</div>
+          <div className="reho-blocked-sub">You've used all 3 attempts. Access to this tag has been blocked from your device.</div>
+          <div className="reho-blocked-detail">
+            <div className="reho-blocked-detail-row">
+              <div className="reho-bd-label">Attempts used</div>
+              <div className="reho-bd-val" data-testid="text-blocked-attempts">3 / 3</div>
+            </div>
+            <div className="reho-blocked-detail-row">
+              <div className="reho-bd-label">Status</div>
+              <div className="reho-bd-val" data-testid="text-blocked-status">Blocked</div>
+            </div>
+            <div className="reho-blocked-detail-row">
+              <div className="reho-bd-label">Tag</div>
+              <div className="reho-bd-val reho-bd-val-soft">TAG · {profile.qrId}</div>
+            </div>
+          </div>
+          <div className="reho-blocked-note">If you genuinely found this bag and need help, contact <span style={{ color: "var(--reho-orange)" }}>help@reho.in</span></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (needsVerification && !verified) {
+    return (
+      <div className="reho-screen">
+        <div className="reho-page">
+          <div className="reho-page-top">
+            <div className="reho-brand">
+              <span className="reho-brand-re">Re</span>
+              <span className="reho-brand-ho">ho</span>
+            </div>
+            <div className="reho-tag-chip">TAG · {profile.qrId}</div>
+          </div>
+
+          {showError && (
+            <>
+              <div className="reho-error-banner" data-testid="banner-error">
+                <div className="reho-error-icon">❌</div>
+                <div className="reho-error-text">
+                  <div className="reho-error-title">Incorrect answer</div>
+                  <div className="reho-error-sub">That doesn't match. Try again — only genuine finders can pass.</div>
+                </div>
+              </div>
+              <div className="reho-attempts-row" data-testid="row-attempts">
+                {Array.from({ length: MAX_ATTEMPTS }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`reho-attempt-pip ${i < attempts ? "reho-attempt-pip-used" : "reho-attempt-pip-left"}`}
+                  />
+                ))}
+                <div className="reho-attempts-label">{attemptsRemaining} attempt{attemptsRemaining !== 1 ? "s" : ""} remaining</div>
+              </div>
+            </>
+          )}
+
+          {!showError && (
+            <div className="reho-verify-hero">
+              <div className="reho-verify-icon">🔐</div>
+              <div className="reho-verify-title" data-testid="text-verify-title">Quick verification</div>
+              <div className="reho-verify-sub">Answer one question to reach the owner of this bag.</div>
+            </div>
+          )}
+
+          <div className="reho-bag-card" data-testid="card-bag-info">
+            <div className="reho-bag-icon">🧳</div>
+            <div className="reho-bag-info">
+              <div className="reho-bag-name">{profile.vehicleLabel}</div>
+              <div className="reho-bag-detail">{profile.bagBrand}</div>
+              <div className="reho-bag-tag">Reho · TAG {profile.qrId}</div>
+            </div>
+          </div>
+
+          <div className="reho-question-card" data-testid="card-question">
+            <div className="reho-question-label">{showError ? "Try again" : "Question"}</div>
+            <div className="reho-question-text">What colour is this bag?</div>
+            <div className="reho-answer-chips">
+              {BAG_COLORS.map((color) => {
+                const dot = COLOR_DOT_MAP[color];
+                return (
+                  <div
+                    key={color}
+                    className={`reho-achip ${selectedColor === color ? "reho-achip-selected" : ""}`}
+                    onClick={() => setSelectedColor(color)}
+                    data-testid={`achip-color-${color.toLowerCase()}`}
+                  >
+                    <div
+                      className="reho-achip-dot"
+                      style={{ background: dot?.bg, border: dot?.border }}
+                    />
+                    {color}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <button
+            className="reho-btn-verify"
+            onClick={handleVerify}
+            disabled={!selectedColor || verifying}
+            data-testid="button-verify"
+          >
+            {verifying ? "Checking..." : showError ? "Try Again →" : "Verify →"}
+          </button>
+
+          <div className="reho-spam-warning">
+            <div className="reho-spam-icon">⚠️</div>
+            <div className="reho-spam-text">
+              {showError
+                ? "Spamming or repeated wrong answers will result in permanent blocking of access from your device."
+                : "3 attempts allowed. Repeated wrong answers will result in permanent blocking of access from your device."}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md space-y-4">
-        <div className="text-center space-y-2 pb-2">
-          <div className="mx-auto w-16 h-16 rounded-full bg-chart-2/15 flex items-center justify-center">
-            <ShieldCheck className="h-8 w-8 text-chart-2" />
+    <div className="reho-screen">
+      <div className="reho-page">
+        <div style={{ padding: "14px 0 20px" }}>
+          <div className="reho-contact-top-row">
+            <div className="reho-brand">
+              <span className="reho-brand-re">Re</span>
+              <span className="reho-brand-ho">ho</span>
+            </div>
+            {needsVerification && (
+              <div className="reho-verified-pill" data-testid="pill-verified">
+                <div className="reho-vp-dot" />
+                Verified
+              </div>
+            )}
           </div>
-          <h1
-            className="text-xl font-semibold text-foreground"
-            data-testid="text-vehicle-label"
+
+          <div className="reho-owner-card" data-testid="card-owner">
+            <div className="reho-owner-avatar">👤</div>
+            <div className="reho-owner-info">
+              <div className="reho-owner-name" data-testid="text-vehicle-label">{profile.vehicleLabel || "Tag Profile"}</div>
+              {profile.profileMessage && (
+                <div className="reho-owner-note" data-testid="text-profile-message">"{profile.profileMessage}"</div>
+              )}
+              <div className="reho-owner-tag">TAG · {profile.qrId} · Reho</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="reho-sec-label">Reach the owner</div>
+
+        <div className="reho-contact-btns">
+          <a
+            className="reho-cbtn reho-cbtn-primary"
+            href={`tel:${profile.ownerPhone}`}
+            data-testid="link-call-owner"
           >
-            {profile.vehicleLabel || "Vehicle Profile"}
-          </h1>
-          {profile.profileMessage && (
-            <p
-              className="text-muted-foreground text-sm max-w-xs mx-auto"
-              data-testid="text-profile-message"
+            <div className="reho-cbtn-icon">📞</div>
+            <div className="reho-cbtn-text">
+              <span className="reho-cbtn-label">Call Owner</span>
+              <span className="reho-cbtn-sub">Direct phone call</span>
+            </div>
+            <div className="reho-cbtn-arrow">›</div>
+          </a>
+
+          {profile.whatsappPhone && whatsappNumber && (
+            <a
+              className="reho-cbtn reho-cbtn-whatsapp"
+              href={`https://wa.me/${whatsappNumber}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              data-testid="link-whatsapp"
             >
-              {profile.profileMessage}
-            </p>
+              <div className="reho-cbtn-icon">💬</div>
+              <div className="reho-cbtn-text">
+                <span className="reho-cbtn-label">WhatsApp</span>
+                <span className="reho-cbtn-sub">Send a message instead</span>
+              </div>
+              <div className="reho-cbtn-arrow">›</div>
+            </a>
+          )}
+
+          {profile.emergencyPhone && (
+            <>
+              <div className="reho-or-div">
+                <div className="reho-or-line" />
+                <div className="reho-or-text">urgent?</div>
+                <div className="reho-or-line" />
+              </div>
+
+              <a
+                className="reho-cbtn reho-cbtn-emergency"
+                href={`tel:${profile.emergencyPhone}`}
+                data-testid="link-emergency"
+              >
+                <div className="reho-cbtn-icon">🚨</div>
+                <div className="reho-cbtn-text">
+                  <span className="reho-cbtn-label">Emergency Contact</span>
+                  <span className="reho-cbtn-sub">Family or alternate</span>
+                </div>
+                <div className="reho-cbtn-arrow">›</div>
+              </a>
+            </>
           )}
         </div>
 
-        <Card>
-          <CardContent className="pt-6 space-y-3">
-            <a
-              href={`tel:${profile.ownerPhone}`}
-              className="block"
-              data-testid="link-call-owner"
-            >
-              <Button variant="default" className="w-full" size="lg">
-                <Phone className="h-5 w-5" />
-                Call Owner
-              </Button>
-            </a>
+        <div className="reho-privacy">
+          <span>🔒</span>
+          <div className="reho-privacy-text">Phone numbers are hidden for privacy</div>
+        </div>
 
-            {profile.whatsappPhone && whatsappNumber && (
-              <a
-                href={`https://wa.me/${whatsappNumber}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-                data-testid="link-whatsapp"
-              >
-                <Button variant="outline" className="w-full bg-[#25D366]/10 border-[#25D366]/30 text-[#25D366] dark:bg-[#25D366]/15 dark:text-[#25D366]" size="lg">
-                  <MessageCircle className="h-5 w-5" />
-                  WhatsApp
-                </Button>
-              </a>
-            )}
-
-            {profile.emergencyPhone && (
-              <a
-                href={`tel:${profile.emergencyPhone}`}
-                className="block"
-                data-testid="link-emergency"
-              >
-                <Button variant="outline" className="w-full bg-destructive/10 border-destructive/30 text-destructive" size="lg">
-                  <AlertTriangle className="h-5 w-5" />
-                  Emergency Contact
-                </Button>
-              </a>
-            )}
-          </CardContent>
-        </Card>
-
-        <p className="text-center text-xs text-muted-foreground pt-2">
-          Phone numbers are hidden for privacy
-        </p>
+        <div className="reho-footer-brand">
+          <div className="reho-footer-brand-text">
+            <span className="reho-footer-brand-re">Re</span>
+            <span className="reho-footer-brand-ho">ho</span>
+          </div>
+        </div>
       </div>
     </div>
   );

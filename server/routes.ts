@@ -70,6 +70,29 @@ export async function registerRoutes(
     }
   });
 
+  app.post("/api/verify/:qrId", async (req, res) => {
+    try {
+      const vehicle = await storage.getVehicle(req.params.qrId);
+      if (!vehicle) {
+        return res.status(404).json({ message: "QR code not found" });
+      }
+
+      if (!vehicle.verificationEnabled || !vehicle.bagColor) {
+        return res.json({ verified: true });
+      }
+
+      const { answer } = req.body;
+      if (!answer || typeof answer !== "string") {
+        return res.status(400).json({ message: "Answer is required" });
+      }
+
+      const correct = answer.toLowerCase().trim() === vehicle.bagColor.toLowerCase().trim();
+      return res.json({ verified: correct });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
   app.patch("/api/vehicle/:qrId", async (req, res) => {
     try {
       const vehicle = await storage.getVehicle(req.params.qrId);
