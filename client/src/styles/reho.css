@@ -1,0 +1,550 @@
+:root {
+  --reho-bg: #0e0d0b;
+  --reho-surface: #161410;
+  --reho-surface2: #1c1a15;
+  --reho-border: #2a2620;
+  --reho-border2: #221f1a;
+  --reho-orange: #e06000;
+  --reho-orange-dim: rgba(224,96,0,0.1);
+  --reho-orange-border: rgba(224,96,0,0.22);
+  --reho-text: #f0ebe2;
+  --reho-muted: #6a6055;
+  --reho-soft: #9a8f80;
+}
+
+.reho-screen {
+  min-height: 100vh;
+  background: var(--reho-bg);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: var(--reho-text);
+}
+
+.reho-setup {
+  padding: 40px 22px 36px;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.reho-brand {
+  font-family: 'Syne', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 12px;
+}
+
+.reho-brand-re { color: #ffffff; }
+.reho-brand-ho { color: var(--reho-orange); }
+
+.reho-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--reho-text);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.reho-sub {
+  font-size: 0.75rem;
+  color: var(--reho-soft);
+  margin-top: 5px;
+  line-height: 1.5;
+  font-weight: 400;
+}
+
+.reho-sec-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.52rem;
+  color: var(--reho-muted);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.reho-sec-label-optional {
+  color: #3a3530;
+  font-size: 0.5rem;
+}
+
+.reho-field-group {
+  margin-bottom: 18px;
+}
+
+.reho-input-field {
+  background: var(--reho-surface);
+  border: 1px solid var(--reho-border);
+  border-radius: 12px;
+  padding: 0 14px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  color: var(--reho-text);
+  font-size: 0.85rem;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.reho-input-field:focus {
+  border-color: var(--reho-orange);
+  box-shadow: 0 0 0 3px rgba(224,96,0,0.08);
+}
+
+.reho-input-field::placeholder {
+  color: var(--reho-muted);
+}
+
+.reho-input-hint {
+  font-size: 0.6rem;
+  color: var(--reho-muted);
+  padding: 5px 4px 0;
+  line-height: 1.5;
+}
+
+.reho-contact-card {
+  background: var(--reho-surface);
+  border: 1px solid var(--reho-border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.reho-contact-card-header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--reho-border2);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.reho-cc-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+.reho-cc-icon-orange {
+  background: var(--reho-orange-dim);
+  border: 1px solid var(--reho-orange-border);
+}
+
+.reho-cc-icon-red {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.15);
+}
+
+.reho-cc-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--reho-text);
+}
+
+.reho-cc-sub {
+  font-size: 0.6rem;
+  color: var(--reho-muted);
+  margin-top: 1px;
+}
+
+.reho-contact-card-body {
+  padding: 12px 14px;
+}
+
+.reho-phone-row {
+  background: var(--reho-surface2);
+  border: 1px solid var(--reho-border2);
+  border-radius: 10px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  margin-bottom: 8px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.reho-phone-row:focus-within {
+  border-color: var(--reho-orange);
+  box-shadow: 0 0 0 3px rgba(224,96,0,0.08);
+}
+
+.reho-phone-cc {
+  padding: 0 11px;
+  font-size: 0.8rem;
+  color: var(--reho-soft);
+  border-right: 1px solid var(--reho-border);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-weight: 500;
+}
+
+.reho-phone-input {
+  padding: 0 11px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--reho-text);
+  font-family: 'DM Sans', sans-serif;
+  height: 100%;
+}
+
+.reho-phone-input::placeholder {
+  color: var(--reho-muted);
+}
+
+.reho-verify-btn {
+  width: 100%;
+  height: 36px;
+  background: transparent;
+  border: 1px solid var(--reho-orange-border);
+  border-radius: 9px;
+  color: var(--reho-orange);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  margin-top: 2px;
+}
+
+.reho-toggle-row {
+  background: var(--reho-surface);
+  border: 1px solid var(--reho-border);
+  border-radius: 14px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.reho-toggle-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--reho-orange-dim);
+  border: 1px solid var(--reho-orange-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+}
+
+.reho-toggle-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--reho-text);
+}
+
+.reho-toggle-sub {
+  font-size: 0.62rem;
+  color: var(--reho-muted);
+  margin-top: 2px;
+}
+
+.reho-toggle {
+  width: 42px;
+  height: 24px;
+  border-radius: 100px;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.reho-toggle-on {
+  background: var(--reho-orange);
+}
+
+.reho-toggle-off {
+  background: var(--reho-border);
+}
+
+.reho-toggle-knob {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  position: absolute;
+  top: 3px;
+  transition: left 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.reho-toggle-on .reho-toggle-knob {
+  left: 21px;
+}
+
+.reho-toggle-off .reho-toggle-knob {
+  left: 3px;
+}
+
+.reho-panel {
+  background: var(--reho-surface);
+  border: 1px solid var(--reho-border);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.reho-panel-section {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--reho-border2);
+}
+
+.reho-panel-section:last-child {
+  border-bottom: none;
+}
+
+.reho-panel-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.5rem;
+  color: var(--reho-muted);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.reho-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.reho-chip {
+  padding: 5px 10px;
+  border-radius: 100px;
+  font-size: 0.62rem;
+  font-weight: 500;
+  border: 1px solid var(--reho-border);
+  color: var(--reho-soft);
+  background: var(--reho-surface2);
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+}
+
+.reho-chip-on {
+  background: var(--reho-orange-dim);
+  border-color: var(--reho-orange-border);
+  color: var(--reho-orange);
+}
+
+.reho-qa-row {
+  background: var(--reho-surface2);
+  border: 1px solid var(--reho-border2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+}
+
+.reho-qa-row:last-child {
+  margin-bottom: 0;
+}
+
+.reho-qa-label {
+  font-size: 0.7rem;
+  color: var(--reho-soft);
+}
+
+.reho-qa-val {
+  font-size: 0.72rem;
+  color: var(--reho-text);
+  font-weight: 500;
+}
+
+.reho-qa-val-orange {
+  color: var(--reho-orange);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.05em;
+}
+
+.reho-btn-save {
+  width: 100%;
+  height: 52px;
+  background: var(--reho-orange);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(224,96,0,0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 4px;
+  transition: opacity 0.2s;
+}
+
+.reho-btn-save:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Thank You Screen */
+.reho-thankyou {
+  padding: 40px 22px 40px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+.reho-ty-top {
+  padding: 0 0 28px;
+  display: flex;
+  justify-content: center;
+}
+
+.reho-ty-hero {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.reho-ty-icon-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 24px;
+  background: var(--reho-orange-dim);
+  border: 1px solid var(--reho-orange-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  margin-bottom: 22px;
+  position: relative;
+}
+
+.reho-ty-icon-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 32px;
+  border: 1px solid rgba(224,96,0,0.08);
+}
+
+.reho-ty-icon-wrap::after {
+  content: '';
+  position: absolute;
+  inset: -16px;
+  border-radius: 40px;
+  border: 1px solid rgba(224,96,0,0.04);
+}
+
+.reho-ty-title {
+  font-family: 'Syne', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--reho-text);
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  margin-bottom: 10px;
+}
+
+.reho-ty-title span {
+  color: var(--reho-orange);
+}
+
+.reho-ty-sub {
+  font-size: 0.76rem;
+  color: var(--reho-soft);
+  line-height: 1.6;
+  max-width: 230px;
+  margin-bottom: 28px;
+}
+
+.reho-ty-summary {
+  background: var(--reho-surface);
+  border: 1px solid var(--reho-border);
+  border-radius: 16px;
+  overflow: hidden;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.reho-ty-row {
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--reho-border2);
+}
+
+.reho-ty-row:last-child {
+  border-bottom: none;
+}
+
+.reho-ty-row-label {
+  font-size: 0.68rem;
+  color: var(--reho-muted);
+}
+
+.reho-ty-row-val {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--reho-text);
+}
+
+.reho-ty-row-val-green {
+  color: #22c55e;
+}
+
+.reho-ty-row-val-orange {
+  color: var(--reho-orange);
+}
+
+.reho-ty-done {
+  width: 100%;
+  height: 52px;
+  background: var(--reho-orange);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(224,96,0,0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.reho-ty-footer {
+  text-align: center;
+  font-size: 0.6rem;
+  color: var(--reho-muted);
+  margin-top: 14px;
+  line-height: 1.7;
+}

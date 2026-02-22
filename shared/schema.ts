@@ -11,6 +11,9 @@ export const vehicleProfiles = pgTable("vehicle_profiles", {
   whatsappPhone: text("whatsapp_phone"),
   emergencyPhone: text("emergency_phone"),
   profileMessage: text("profile_message"),
+  verificationEnabled: boolean("verification_enabled").default(false).notNull(),
+  bagBrand: text("bag_brand"),
+  bagColor: text("bag_color"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -24,6 +27,9 @@ export const activateVehicleSchema = createInsertSchema(vehicleProfiles).pick({
   whatsappPhone: true,
   emergencyPhone: true,
   profileMessage: true,
+  verificationEnabled: true,
+  bagBrand: true,
+  bagColor: true,
 }).extend({
   ownerPhone: z.string().min(1, "Owner phone number is required"),
 });
