@@ -3,6 +3,9 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { activateVehicleSchema } from "@shared/schema";
 import { z } from "zod";
+import { spawn } from "child_process";
+import path from "path";
+import fs from "fs";
 
 export async function registerRoutes(
   httpServer: Server,
@@ -90,6 +93,130 @@ export async function registerRoutes(
       return res.json({ verified: correct });
     } catch (error) {
       res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/tags/bulk", async (req, res) => {
+    try {
+      const { qrIds } = req.body;
+      if (!Array.isArray(qrIds) || qrIds.length === 0) {
+        return res.status(400).json({ message: "qrIds array is required" });
+      }
+      if (qrIds.length > 5000) {
+        return res.status(400).json({ message: "Maximum 5000 tags per batch" });
+      }
+      const result = await storage.bulkCreateVehicles(qrIds);
+      res.status(201).json({
+        created: result.created.length,
+        duplicates: result.duplicates,
+        tags: result.created,
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/vehicle/:qrId", async (req, res) => {
+    try {
+      const vehicle = await storage.getVehicle(req.params.qrId);
+      if (!vehicle) {
+        return res.status(404).json({ message: "QR code not found" });
+      }
+      await storage.deleteVehicle(req.params.qrId);
+      res.json({ message: "Deleted successfully" });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.delete("/api/tags/bulk", async (req, res) => {
+    try {
+      const { qrIds } = req.body;
+      if (!Array.isArray(qrIds) || qrIds.length === 0) {
+        return res.status(400).json({ message: "qrIds array is required" });
+      }
+      for (const qrId of qrIds) {
+        await storage.deleteVehicle(qrId);
+      }
+      res.json({ message: `Deleted ${qrIds.length} tags`, count: qrIds.length });
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.get("/api/tags/export", async (_req, res) => {
+    try {
+      const vehicles = await storage.getAllVehicles();
+      const header = "Tag ID,Tag URL,Status,Created";
+      const rows = vehicles.map(
+        (v) =>
+          `${v.qrId},https://findmyowner.replit.app/v/${v.qrId},${v.isActive ? "active" : "inactive"},${v.createdAt ? new Date(v.createdAt).toISOString().split("T")[0] : ""}`
+      );
+      const csv = header + "\n" + rows.join("\n");
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader("Content-Disposition", "attachment; filename=reho-tags-export.csv");
+      res.send(csv);
+    } catch (error) {
+      res.status(500).json({ message: "Internal server error" });
+    }
+  });
+
+  app.post("/api/qr/generate", async (req, res) => {
+    try {
+      const { tag_ids, base_url, module_color, bg_color, size } = req.body;
+      if (!Array.isArray(tag_ids) || tag_ids.length === 0) {
+        return res.status(400).json({ message: "tag_ids array is required" });
+      }
+      if (tag_ids.length > 500) {
+        return res.status(400).json({ message: "Maximum 500 QR codes per batch" });
+      }
+
+      const config = {
+        tag_ids,
+        base_url: base_url || "https://findmyowner.replit.app/v/",
+        output_dir: `/tmp/qr_${Date.now()}`,
+        zip_path: `/tmp/qr_${Date.now()}.zip`,
+        size: size || 800,
+        module_color: module_color || "#FF6B1A",
+        bg_color: bg_color || "#1a1a1a",
+      };
+
+      const result = await new Promise<string>((resolve, reject) => {
+        const proc = spawn("python3", [
+          path.join(process.cwd(), "scripts", "qr_generator.py"),
+        ]);
+        let stdout = "";
+        let stderr = "";
+        proc.stdin.write(JSON.stringify(config));
+        proc.stdin.end();
+        proc.stdout.on("data", (d) => (stdout += d.toString()));
+        proc.stderr.on("data", (d) => (stderr += d.toString()));
+        proc.on("close", (code) => {
+          if (code === 0) resolve(stdout.trim());
+          else reject(new Error(stderr || `Process exited with code ${code}`));
+        });
+        proc.on("error", reject);
+      });
+
+      const parsed = JSON.parse(result);
+      if (!parsed.success) {
+        return res.status(500).json({ message: "QR generation failed" });
+      }
+
+      res.setHeader("Content-Type", "application/zip");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename=reho_qrs_${Date.now()}.zip`
+      );
+      const zipStream = fs.createReadStream(parsed.zip_path);
+      zipStream.pipe(res);
+      zipStream.on("end", () => {
+        fs.unlink(parsed.zip_path, () => {});
+        fs.rm(config.output_dir, { recursive: true }, () => {});
+      });
+    } catch (error) {
+      console.error("QR generation error:", error);
+      res.status(500).json({ message: "QR generation failed" });
     }
   });
 

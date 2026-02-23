@@ -8,6 +8,7 @@ import HomePage from "@/pages/home";
 import VehicleProfilePage from "@/pages/vehicle-profile";
 import AdminPage from "@/pages/admin";
 import ThankYouPage from "@/pages/thank-you";
+import QRGeneratorPage from "@/pages/qr-generator";
 
 function Router() {
   return (
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/v/:qrId/thank-you" component={ThankYouPage} />
       <Route path="/v/:qrId" component={VehicleProfilePage} />
       <Route path="/admin" component={AdminPage} />
+      <Route path="/qr-generator" component={QRGeneratorPage} />
       <Route component={NotFound} />
     </Switch>
   );
