@@ -45,4 +45,4 @@ waitForPort = 5000
 [userenv.shared]
 ADMIN_USERNAME = "reho_admin"
 ADMIN_PASSWORD = "Kirti@2207"
-DATABASE_URL = "postgresql://postgres:Odror9CzMPwxfDYq@db.ndnllwylrcfzidscylxp.supabase.co:5432/postgres"
+DATABASE_URL = "postgresql://neondb_owner:npg_0samuEBnUK1j@ep-withered-hat-a1sqfxd9-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
