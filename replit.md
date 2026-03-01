@@ -15,10 +15,11 @@ A mobile-first web application for QR tag identity and contact system. Tag owner
 ## Key Routes
 - `/` - Landing page with how-it-works info
 - `/login` - Admin login page (Reho branded)
-- `/v/:qrId` - Dynamic tag profile page (states: unregistered, inactive activation form, verification gate, blocked, active contact page)
-- `/v/:qrId/thank-you` - Thank You page shown after first-time activation
+- `/tag/:qrId` - Dynamic tag profile page (states: unregistered, inactive activation form, verification gate, blocked, active contact page)
+- `/tag/:qrId/thank-you` - Thank You page shown after first-time activation
 - `/admin` - Admin panel with Bulk Create + Manage tabs (protected, requires login)
 - `/qr-generator` - QR Batch Generator with live canvas preview + ZIP download (protected, requires login)
+- **Base URL for QR codes**: `https://scan.reho.co.in/tag/`
 
 ## Authentication
 - Admin credentials stored as env vars: ADMIN_USERNAME, ADMIN_PASSWORD
@@ -72,6 +73,7 @@ A mobile-first web application for QR tag identity and contact system. Tag owner
 - TEST001, TEST002, TEST003 are auto-seeded on startup
 
 ## Recent Changes
+- 2026-03-01: Changed routes from /v/:qrId to /tag/:qrId, updated base URL from findmyowner.replit.app to scan.reho.co.in
 - 2026-03-01: Added admin authentication with JWT — login page, protected admin routes, logout, auth guards on /admin and /qr-generator
 - 2026-02-23: Added QR Batch Generator page with live canvas preview and server-side Python ZIP generation
 - 2026-02-23: Rebuilt admin panel with Bulk Create tab (series config, duplicate detection, progress, batch stats) and Manage tab (table with search, multi-select, status toggle, delete, CSV export)

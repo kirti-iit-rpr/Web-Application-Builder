@@ -238,7 +238,7 @@ function BulkCreatePanel() {
     if (!batchResult?.tags?.length) return;
     const header = "Tag ID,Tag URL,Status,Created";
     const rows = batchResult.tags.map(
-      (t) => `${t.qrId},https://findmyowner.replit.app/v/${t.qrId},inactive,${new Date().toISOString().split("T")[0]}`
+      (t) => `${t.qrId},https://scan.reho.co.in/tag/${t.qrId},inactive,${new Date().toISOString().split("T")[0]}`
     );
     downloadCsv(header + "\n" + rows.join("\n"), "reho-batch-export.csv");
   }, [batchResult]);
@@ -556,7 +556,7 @@ function ManagePanel() {
     const selected = vehicles?.filter((v) => selectedIds.has(v.qrId)) || [];
     const header = "Tag ID,Tag URL,Status,Created";
     const rows = selected.map(
-      (v) => `${v.qrId},https://findmyowner.replit.app/v/${v.qrId},${v.isActive ? "active" : "inactive"},${v.createdAt ? new Date(v.createdAt).toISOString().split("T")[0] : ""}`
+      (v) => `${v.qrId},https://scan.reho.co.in/tag/${v.qrId},${v.isActive ? "active" : "inactive"},${v.createdAt ? new Date(v.createdAt).toISOString().split("T")[0] : ""}`
     );
     downloadCsv(header + "\n" + rows.join("\n"), "reho-selected-export.csv");
   };
@@ -713,7 +713,7 @@ function ManagePanel() {
                       </TableCell>
                       <TableCell>
                         <span className="font-mono text-xs text-muted-foreground truncate max-w-[250px] block" data-testid={`text-url-${v.qrId}`}>
-                          findmyowner.replit.app/v/{v.qrId}
+                          scan.reho.co.in/tag/{v.qrId}
                         </span>
                       </TableCell>
                       <TableCell>
@@ -748,7 +748,7 @@ function ManagePanel() {
                             variant="outline"
                             size="icon"
                             onClick={() => {
-                              navigator.clipboard.writeText(`https://findmyowner.replit.app/v/${v.qrId}`);
+                              navigator.clipboard.writeText(`https://scan.reho.co.in/tag/${v.qrId}`);
                               toast({ title: "Copied", description: "URL copied to clipboard." });
                             }}
                             data-testid={`button-copy-${v.qrId}`}

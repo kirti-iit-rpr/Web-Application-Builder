@@ -221,7 +221,7 @@ interface GeneratedQR {
 export default function QRGeneratorPage() {
   const { toast } = useToast();
 
-  const [baseUrl, setBaseUrl] = useState("https://findmyowner.replit.app/v/");
+  const [baseUrl, setBaseUrl] = useState("https://scan.reho.co.in/tag/");
   const [seriesName, setSeriesName] = useState("");
   const [startNum, setStartNum] = useState("");
   const [endNum, setEndNum] = useState("");

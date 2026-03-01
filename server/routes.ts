@@ -188,7 +188,7 @@ export async function registerRoutes(
       const header = "Tag ID,Tag URL,Status,Created";
       const rows = vehicles.map(
         (v) =>
-          `${v.qrId},https://findmyowner.replit.app/v/${v.qrId},${v.isActive ? "active" : "inactive"},${v.createdAt ? new Date(v.createdAt).toISOString().split("T")[0] : ""}`
+          `${v.qrId},https://scan.reho.co.in/tag/${v.qrId},${v.isActive ? "active" : "inactive"},${v.createdAt ? new Date(v.createdAt).toISOString().split("T")[0] : ""}`
       );
       const csv = header + "\n" + rows.join("\n");
       res.setHeader("Content-Type", "text/csv");
@@ -211,7 +211,7 @@ export async function registerRoutes(
 
       const config = {
         tag_ids,
-        base_url: base_url || "https://findmyowner.replit.app/v/",
+        base_url: base_url || "https://scan.reho.co.in/tag/",
         output_dir: `/tmp/qr_${Date.now()}`,
         zip_path: `/tmp/qr_${Date.now()}.zip`,
         size: size || 800,

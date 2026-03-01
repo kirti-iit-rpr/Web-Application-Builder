@@ -116,7 +116,7 @@ def hex_to_rgb(hex_color):
 def main():
     config = json.loads(sys.stdin.read())
     tag_ids = config["tag_ids"]
-    base_url = config.get("base_url", "https://findmyowner.replit.app/v/")
+    base_url = config.get("base_url", "https://scan.reho.co.in/tag/")
     output_dir = config.get("output_dir", "/tmp/qr_output")
     zip_path = config.get("zip_path", "/tmp/qr_output.zip")
     size = config.get("size", 800)

@@ -50,8 +50,8 @@ function Router() {
     <Switch>
       <Route path="/" component={HomePage} />
       <Route path="/login" component={LoginPage} />
-      <Route path="/v/:qrId/thank-you" component={ThankYouPage} />
-      <Route path="/v/:qrId" component={VehicleProfilePage} />
+      <Route path="/tag/:qrId/thank-you" component={ThankYouPage} />
+      <Route path="/tag/:qrId" component={VehicleProfilePage} />
       <Route path="/admin">{() => <ProtectedRoute component={AdminPage} />}</Route>
       <Route path="/qr-generator">{() => <ProtectedRoute component={QRGeneratorPage} />}</Route>
       <Route component={NotFound} />

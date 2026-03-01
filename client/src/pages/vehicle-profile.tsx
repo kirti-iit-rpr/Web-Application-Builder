@@ -80,7 +80,7 @@ function ActivationForm({ qrId }: { qrId: string }) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/vehicle", qrId] });
-      setLocation(`/v/${qrId}/thank-you`);
+      setLocation(`/tag/${qrId}/thank-you`);
     },
     onError: (error: Error) => {
       toast({

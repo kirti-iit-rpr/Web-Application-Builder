@@ -61,17 +61,17 @@ export default function HomePage() {
         </Link>
 
         <div className="flex flex-wrap gap-2 justify-center">
-          <Link href="/v/TEST001">
+          <Link href="/tag/TEST001">
             <Button variant="ghost" size="sm" data-testid="link-test001">
               TEST001
             </Button>
           </Link>
-          <Link href="/v/TEST002">
+          <Link href="/tag/TEST002">
             <Button variant="ghost" size="sm" data-testid="link-test002">
               TEST002
             </Button>
           </Link>
-          <Link href="/v/TEST003">
+          <Link href="/tag/TEST003">
             <Button variant="ghost" size="sm" data-testid="link-test003">
               TEST003
             </Button>
