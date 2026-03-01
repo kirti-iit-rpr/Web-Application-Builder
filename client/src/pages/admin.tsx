@@ -37,8 +37,10 @@ import {
   Layers,
   List,
   Link as LinkIcon,
+  LogOut,
 } from "lucide-react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
+import { removeToken } from "@/lib/auth";
 
 function generateIds(name: string, start: number, end: number, pad: number): string[] {
   const ids: string[] = [];
@@ -59,6 +61,14 @@ function downloadCsv(content: string, filename: string) {
 }
 
 function AdminHeader({ totalCount }: { totalCount: number }) {
+  const [, navigate] = useLocation();
+
+  function handleLogout() {
+    removeToken();
+    queryClient.clear();
+    navigate("/login");
+  }
+
   return (
     <div className="border-b bg-card sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-3 flex-wrap">
@@ -83,6 +93,10 @@ function AdminHeader({ totalCount }: { totalCount: number }) {
           <span className="text-xs text-muted-foreground font-mono">
             Total: <span className="text-primary font-bold" data-testid="text-total-count">{totalCount}</span> tags
           </span>
+          <Button variant="ghost" size="sm" onClick={handleLogout} data-testid="button-logout">
+            <LogOut className="h-3.5 w-3.5" />
+            Logout
+          </Button>
         </div>
       </div>
     </div>
@@ -520,7 +534,11 @@ function ManagePanel() {
 
   const exportAllCsv = async () => {
     try {
-      const res = await fetch("/api/tags/export", { credentials: "include" });
+      const token = localStorage.getItem("reho_admin_token");
+      const res = await fetch("/api/tags/export", {
+        credentials: "include",
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");

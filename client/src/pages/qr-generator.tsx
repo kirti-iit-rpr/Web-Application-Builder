@@ -1,5 +1,5 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,8 +18,10 @@ import {
   Hash,
   Link as LinkIcon,
   Type,
+  LogOut,
 } from "lucide-react";
 import QRCode from "qrcode";
+import { removeToken } from "@/lib/auth";
 
 function drawPill(
   ctx: CanvasRenderingContext2D,
@@ -392,21 +394,32 @@ export default function QRGeneratorPage() {
             <span className="reho-brand-ho">ho</span>
           </span>
         </div>
-        <Badge
-          data-testid="badge-qr-generator"
-          style={{
-            background: "var(--reho-orange-dim)",
-            borderColor: "var(--reho-orange-border)",
-            color: "var(--reho-orange)",
-            fontSize: "0.6rem",
-            letterSpacing: "0.15em",
-            textTransform: "uppercase",
-            fontFamily: "'DM Mono', monospace",
-          }}
-          className="no-default-hover-elevate no-default-active-elevate"
-        >
-          QR Batch Generator
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge
+            data-testid="badge-qr-generator"
+            style={{
+              background: "var(--reho-orange-dim)",
+              borderColor: "var(--reho-orange-border)",
+              color: "var(--reho-orange)",
+              fontSize: "0.6rem",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+              fontFamily: "'DM Mono', monospace",
+            }}
+            className="no-default-hover-elevate no-default-active-elevate"
+          >
+            QR Batch Generator
+          </Badge>
+          <Button
+            size="sm"
+            variant="ghost"
+            data-testid="button-logout-qr"
+            onClick={() => { removeToken(); window.location.href = "/login"; }}
+            style={{ color: "var(--reho-soft)" }}
+          >
+            <LogOut className="h-3.5 w-3.5" />
+          </Button>
+        </div>
         <span
           style={{
             fontFamily: "'DM Mono', monospace",

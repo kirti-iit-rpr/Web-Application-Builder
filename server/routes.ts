@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { activateVehicleSchema } from "@shared/schema";
@@ -6,11 +6,49 @@ import { z } from "zod";
 import { spawn } from "child_process";
 import path from "path";
 import fs from "fs";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.SESSION_SECRET;
+if (!JWT_SECRET) {
+  throw new Error("SESSION_SECRET environment variable is required for JWT signing");
+}
+
+function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Authentication required" });
+  }
+  const token = authHeader.split(" ")[1];
+  try {
+    jwt.verify(token, JWT_SECRET);
+    next();
+  } catch {
+    return res.status(401).json({ message: "Invalid or expired token" });
+  }
+}
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+
+  app.post("/api/auth/login", (req, res) => {
+    const { username, password } = req.body;
+    const adminUser = process.env.ADMIN_USERNAME;
+    const adminPass = process.env.ADMIN_PASSWORD;
+    if (!adminUser || !adminPass) {
+      return res.status(500).json({ message: "Admin credentials not configured" });
+    }
+    if (username !== adminUser || password !== adminPass) {
+      return res.status(401).json({ message: "Invalid username or password" });
+    }
+    const token = jwt.sign({ role: "admin" }, JWT_SECRET, { expiresIn: "24h" });
+    res.json({ token });
+  });
+
+  app.get("/api/auth/me", requireAdmin, (_req, res) => {
+    res.json({ role: "admin" });
+  });
 
   app.get("/api/vehicle/:qrId", async (req, res) => {
     try {
@@ -24,7 +62,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/vehicles", async (_req, res) => {
+  app.get("/api/vehicles", requireAdmin, async (_req, res) => {
     try {
       const vehicles = await storage.getAllVehicles();
       res.json(vehicles);
@@ -33,7 +71,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/vehicle", async (req, res) => {
+  app.post("/api/vehicle", requireAdmin, async (req, res) => {
     try {
       const { qrId } = req.body;
       if (!qrId || typeof qrId !== "string") {
@@ -96,7 +134,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/tags/bulk", async (req, res) => {
+  app.post("/api/tags/bulk", requireAdmin, async (req, res) => {
     try {
       const { qrIds } = req.body;
       if (!Array.isArray(qrIds) || qrIds.length === 0) {
@@ -116,7 +154,7 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/vehicle/:qrId", async (req, res) => {
+  app.delete("/api/vehicle/:qrId", requireAdmin, async (req, res) => {
     try {
       const vehicle = await storage.getVehicle(req.params.qrId);
       if (!vehicle) {
@@ -129,7 +167,7 @@ export async function registerRoutes(
     }
   });
 
-  app.delete("/api/tags/bulk", async (req, res) => {
+  app.delete("/api/tags/bulk", requireAdmin, async (req, res) => {
     try {
       const { qrIds } = req.body;
       if (!Array.isArray(qrIds) || qrIds.length === 0) {
@@ -144,7 +182,7 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/tags/export", async (_req, res) => {
+  app.get("/api/tags/export", requireAdmin, async (_req, res) => {
     try {
       const vehicles = await storage.getAllVehicles();
       const header = "Tag ID,Tag URL,Status,Created";
@@ -161,7 +199,7 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/qr/generate", async (req, res) => {
+  app.post("/api/qr/generate", requireAdmin, async (req, res) => {
     try {
       const { tag_ids, base_url, module_color, bg_color, size } = req.body;
       if (!Array.isArray(tag_ids) || tag_ids.length === 0) {
@@ -220,7 +258,7 @@ export async function registerRoutes(
     }
   });
 
-  app.patch("/api/vehicle/:qrId", async (req, res) => {
+  app.patch("/api/vehicle/:qrId", requireAdmin, async (req, res) => {
     try {
       const vehicle = await storage.getVehicle(req.params.qrId);
       if (!vehicle) {
