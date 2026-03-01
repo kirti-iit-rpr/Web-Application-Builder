@@ -45,3 +45,4 @@ waitForPort = 5000
 [userenv.shared]
 ADMIN_USERNAME = "reho_admin"
 ADMIN_PASSWORD = "Kirti@2207"
+DATABASE_URL = "postgresql://postgres:Odror9CzMPwxfDYq@db.ndnllwylrcfzidscylxp.supabase.co:5432/postgres"
