@@ -739,7 +739,7 @@ function ManagePanel() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1.5">
-                          <a href={`/v/${v.qrId}`} target="_blank" rel="noopener noreferrer">
+                          <a href={`/tag/${v.qrId}`} target="_blank" rel="noopener noreferrer">
                             <Button variant="outline" size="icon" data-testid={`button-view-${v.qrId}`}>
                               <ExternalLink className="h-3.5 w-3.5" />
                             </Button>

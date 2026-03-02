@@ -56,7 +56,7 @@ export default function ThankYouPage() {
             </div>
           </div>
 
-          <a href={`/v/${qrId}`} className="reho-ty-done" data-testid="link-view-profile">
+          <a href={`/tag/${qrId}`} className="reho-ty-done" data-testid="link-view-profile">
             Done
           </a>
 
