@@ -59,10 +59,11 @@ def generate_reho_qr(
     qr_area = size - 2 * margin
     module_px = qr_area / n
 
-    img = Image.new("RGB", (size, size), bg_color)
+    # img = Image.new("RGB", (size, size), bg_color)
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))  # fully transparent
     draw = ImageDraw.Draw(img)
 
-    rounded_rect(draw, (0, 0, size-1, size-1), int(size * 0.05), bg_color)
+    # rounded_rect(draw, (0, 0, size-1, size-1), int(size * 0.05), bg_color)
 
     finder_zones = {(0, 0), (0, n-7), (n-7, 0)}
 
