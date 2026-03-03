@@ -101,12 +101,18 @@ def generate_reho_qr(
             else:
                 draw_pill(draw, px_x0, px_y0, px_x1, px_y1, module_color)
 
-    for fr, fc in finder_zones:
-        draw_finder(draw,
-                    int(margin + fc * module_px),
-                    int(margin + fr * module_px),
-                    int(module_px), module_color, bg_color)
+    # for fr, fc in finder_zones:
+    #     draw_finder(draw,
+    #                 int(margin + fc * module_px),
+    #                 int(margin + fr * module_px),
+    #                 int(module_px), module_color, bg_color)
 
+    for fr, fc in finder_zones:
+    draw_finder(draw,
+                int(margin + fc * module_px),
+                int(margin + fr * module_px),
+                int(module_px), module_color, (0, 0, 0, 0))  # transparent inner
+    
     img.save(output_path, "PNG", dpi=(300, 300))
     return output_path
 
