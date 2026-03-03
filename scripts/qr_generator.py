@@ -10,10 +10,7 @@ def generate_reho_qr(
     url,
     output_path="reho_qr.png",
     size=800,
-    # bg_color=(26, 26, 26),
-    # module_color=(255, 107, 26),
-    bg_color = (15, 14, 12),
-    module_color = (244, 122, 42),
+    module_color=(244, 122, 42),
     margin_ratio=0.06,
 ):
     def draw_pill(draw, x0, y0, x1, y1, fill):
@@ -33,14 +30,14 @@ def generate_reho_qr(
         draw.ellipse([x0, y1-2*r, x0+2*r, y1], fill=fill)
         draw.ellipse([x1-2*r, y1-2*r, x1, y1], fill=fill)
 
-    def draw_finder(draw, x, y, ms, color, bg):
+    def draw_finder(draw, x, y, ms, color):
         outer = 7 * ms
         border = ms
         ir = (3 * ms) // 2
         ro = int(ms * 1.4)
         rounded_rect(draw, (x, y, x+outer, y+outer), ro, color)
         rounded_rect(draw, (x+border, y+border, x+outer-border, y+outer-border),
-                     int(ro * 0.7), bg)
+                     int(ro * 0.7), (0, 0, 0, 0))
         cx, cy = x + outer//2, y + outer//2
         draw.ellipse((cx-ir, cy-ir, cx+ir, cy+ir), fill=color)
 
@@ -59,11 +56,8 @@ def generate_reho_qr(
     qr_area = size - 2 * margin
     module_px = qr_area / n
 
-    # img = Image.new("RGB", (size, size), bg_color)
-    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))  # fully transparent
+    img = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     draw = ImageDraw.Draw(img)
-
-    # rounded_rect(draw, (0, 0, size-1, size-1), int(size * 0.05), bg_color)
 
     finder_zones = {(0, 0), (0, n-7), (n-7, 0)}
 
@@ -101,18 +95,12 @@ def generate_reho_qr(
             else:
                 draw_pill(draw, px_x0, px_y0, px_x1, px_y1, module_color)
 
-    # for fr, fc in finder_zones:
-    #     draw_finder(draw,
-    #                 int(margin + fc * module_px),
-    #                 int(margin + fr * module_px),
-    #                 int(module_px), module_color, bg_color)
-
     for fr, fc in finder_zones:
-    draw_finder(draw,
-                int(margin + fc * module_px),
-                int(margin + fr * module_px),
-                int(module_px), module_color, (0, 0, 0, 0))  # transparent inner
-    
+        draw_finder(draw,
+                    int(margin + fc * module_px),
+                    int(margin + fr * module_px),
+                    int(module_px), module_color)
+
     img.save(output_path, "PNG", dpi=(300, 300))
     return output_path
 
@@ -129,10 +117,7 @@ def main():
     output_dir = config.get("output_dir", "/tmp/qr_output")
     zip_path = config.get("zip_path", "/tmp/qr_output.zip")
     size = config.get("size", 800)
-    # module_color = hex_to_rgb(config.get("module_color", "#FF6B1A"))
-    # bg_color = hex_to_rgb(config.get("bg_color", "#1a1a1a"))
     module_color = hex_to_rgb(config.get("module_color", "#F47A2A"))
-    bg_color = hex_to_rgb(config.get("bg_color", "#0F0E0C"))
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -145,7 +130,6 @@ def main():
             url=url,
             output_path=output_path,
             size=size,
-            bg_color=bg_color,
             module_color=module_color,
         )
         generated.append({"tag_id": tag_id, "path": output_path, "filename": filename})
@@ -154,7 +138,12 @@ def main():
         for item in generated:
             zf.write(item["path"], item["filename"])
 
-    result = {"success": True, "zip_path": zip_path, "count": len(generated), "files": [g["filename"] for g in generated]}
+    result = {
+        "success": True,
+        "zip_path": zip_path,
+        "count": len(generated),
+        "files": [g["filename"] for g in generated]
+    }
     print(json.dumps(result))
 
 
