@@ -10,8 +10,10 @@ def generate_reho_qr(
     url,
     output_path="reho_qr.png",
     size=800,
-    bg_color=(26, 26, 26),
-    module_color=(255, 107, 26),
+    # bg_color=(26, 26, 26),
+    # module_color=(255, 107, 26),
+    bg_color = (10, 10, 11),
+    module_color = (244, 122, 42),
     margin_ratio=0.06,
 ):
     def draw_pill(draw, x0, y0, x1, y1, fill):
@@ -120,8 +122,10 @@ def main():
     output_dir = config.get("output_dir", "/tmp/qr_output")
     zip_path = config.get("zip_path", "/tmp/qr_output.zip")
     size = config.get("size", 800)
-    module_color = hex_to_rgb(config.get("module_color", "#FF6B1A"))
-    bg_color = hex_to_rgb(config.get("bg_color", "#1a1a1a"))
+    # module_color = hex_to_rgb(config.get("module_color", "#FF6B1A"))
+    # bg_color = hex_to_rgb(config.get("bg_color", "#1a1a1a"))
+    module_color = hex_to_rgb(config.get("module_color", "#F47A2A"))
+    bg_color = hex_to_rgb(config.get("bg_color", "#0A0A0B"))
 
     os.makedirs(output_dir, exist_ok=True)
 
