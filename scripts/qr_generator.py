@@ -12,7 +12,7 @@ def generate_reho_qr(
     size=800,
     # bg_color=(26, 26, 26),
     # module_color=(255, 107, 26),
-    bg_color = (10, 10, 11),
+    bg_color = (15, 14, 12),
     module_color = (244, 122, 42),
     margin_ratio=0.06,
 ):
@@ -125,7 +125,7 @@ def main():
     # module_color = hex_to_rgb(config.get("module_color", "#FF6B1A"))
     # bg_color = hex_to_rgb(config.get("bg_color", "#1a1a1a"))
     module_color = hex_to_rgb(config.get("module_color", "#F47A2A"))
-    bg_color = hex_to_rgb(config.get("bg_color", "#0A0A0B"))
+    bg_color = hex_to_rgb(config.get("bg_color", "#0F0E0C"))
 
     os.makedirs(output_dir, exist_ok=True)
 
