@@ -81,15 +81,29 @@ function drawFinder(
   const ri = ro * 0.7;
   const ir = (3 * ms) / 2;
   roundedRect(ctx, x, y, x + outer, y + outer, ro, color);
-  roundedRect(
-    ctx,
-    x + border,
-    y + border,
-    x + outer - border,
-    y + outer - border,
-    ri,
-    bg
-  );
+  // roundedRect(
+  //   ctx,
+  //   x + border,
+  //   y + border,
+  //   x + outer - border,
+  //   y + outer - border,
+  //   ri,
+  //   bg
+  // );
+  ctx.save();
+ctx.globalCompositeOperation = "destination-out";
+
+roundedRect(
+  ctx,
+  x + border,
+  y + border,
+  x + outer - border,
+  y + outer - border,
+  ri,
+  "#000"
+);
+
+ctx.restore();
   ctx.fillStyle = color;
   ctx.beginPath();
   ctx.arc(x + outer / 2, y + outer / 2, ir, 0, Math.PI * 2);
@@ -133,12 +147,13 @@ function renderRehoQR(
   canvas.height = size;
 
   const ctx = canvas.getContext("2d")!;
+  ctx.clearRect(0, 0, size, size); //new
   const n = matrix.length;
   const margin = size * marginRatio;
   const qrArea = size - 2 * margin;
   const mPx = qrArea / n;
 
-  roundedRect(ctx, 0, 0, size, size, size * 0.04, bgColor);
+  // roundedRect(ctx, 0, 0, size, size, size * 0.04, bgColor);
 
   const finderZones: [number, number][] = [
     [0, 0],
@@ -195,7 +210,8 @@ function renderRehoQR(
   }
 
   finderZones.forEach(([fr, fc]) => {
-    drawFinder(ctx, margin + fc * mPx, margin + fr * mPx, mPx, moduleColor, bgColor);
+    // drawFinder(ctx, margin + fc * mPx, margin + fr * mPx, mPx, moduleColor, bgColor);
+    drawFinder(ctx, margin + fc * mPx, margin + fr * mPx, mPx, moduleColor, "");
   });
 }
 
